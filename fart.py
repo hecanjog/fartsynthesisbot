@@ -53,6 +53,6 @@ tweet = '%s #fartsynthesis http://hecanjog.com/farts/%s.mp3' % (fart_hash, filen
 
 # Send the tweet
 print 'Tweeting...'
-api.update_status(tweet)
+api.update_status(status=tweet)
 
 print tweet

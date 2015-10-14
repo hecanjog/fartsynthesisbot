@@ -8,21 +8,32 @@ import os
 slen = dsp.rand(5, dsp.rand(15, 400))
 
 layers = []
-
-for _ in range(dsp.randint(2, dsp.randint(6, 50))):
-    freq = dsp.rand(0.1, 5) 
+numlayers = dsp.randint(4, dsp.randint(10, 50))
+for _ in range(numlayers):
+    freq = dsp.rand(0.1, 500) 
     length = dsp.stf(slen)
-    pulsewidth = dsp.rand(0.5, 1)
-    waveform = [0] + dsp.breakpoint([ dsp.rand(-1, 1) for _ in range(dsp.randint(6, dsp.randint(10, 30))) ], 512) + [0]
-    window = dsp.wavetable('tri', 512)
-    mod = dsp.wavetable('phasor', 100)
-    mod = dsp.breakpoint(mod[-1:] + [ dsp.rand() for _ in range(50) ], 1024*2)
-    modrange = dsp.rand(1, 10)
+    pulsewidth = dsp.rand(0.15, 1)
+    waveform = [0] + dsp.breakpoint([ dsp.rand(-1, 1) for _ in range(dsp.randint(6, dsp.randint(10, 300))) ], 512) + [0]
+    window = dsp.wavetable(dsp.randchoose(['tri', 'hann', 'sine']), 512)
+    mod = dsp.breakpoint([ dsp.rand() for _ in range(dsp.randint(5, 500)) ], 1024*2)
+    modrange = dsp.rand(0.01, 10)
     modfreq = 1.0 / slen
     amp = dsp.rand(0.3, 0.75)
 
     layer = dsp.pulsar(freq, length, pulsewidth, waveform, window, mod, modrange, modfreq, amp)
     layer = fx.penv(layer)
+
+    bits = []
+
+    layer = dsp.vsplit(layer, dsp.mstf(1), dsp.stf(1))
+
+    for bit in layer:
+        if dsp.rand() > 0.9:
+            bit = ''.join([ dsp.pan(dsp.amp(bit, dsp.rand(0.1, 10)), dsp.rand()) for _ in range(dsp.randint(2, 10)) ])
+
+        bits += [ bit ]
+
+    layer = ''.join(bits)
 
     layers += [ layer ]
 
